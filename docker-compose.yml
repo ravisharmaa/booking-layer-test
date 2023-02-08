@@ -1,0 +1,52 @@
+version: '3.7'
+
+services:
+  php:
+    container_name: task-api-php
+    build:
+      context: ./
+      dockerfile: ./deployment/docker/fpm/Dockerfile
+      target: fpm-dev
+    platform: linux/amd64
+    env_file:
+      - .env
+    volumes:
+      - .:/var/www/:cached
+      - php-fpm:/var/run
+    working_dir: /var/www/
+    networks:
+      - task-api
+    depends_on:
+      - composer
+
+  nginx:
+    build:
+      context: ./
+      dockerfile: ./deployment/docker/nginx/Dockerfile
+      args:
+        FPM_HOST: task-api-php
+    volumes:
+      - .:/var/www/:cached
+    ports:
+      - "8888:80"
+    networks:
+      - task-api
+    depends_on:
+      - php
+
+
+  composer:
+    restart: 'no'
+    image: composer:latest
+    command: install --ignore-platform-reqs
+    volumes:
+      - .:/app
+
+volumes:
+  php-fpm:
+  db:
+    driver: local
+
+networks:
+  task-api:
+    driver: bridge
