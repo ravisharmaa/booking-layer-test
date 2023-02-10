@@ -91,7 +91,7 @@ unless really necessary.
 
 Run the following commands to set up the application, given that Docker is available in the host machine:
 
-1. `git clone` repo
+1. `git clone` https://github.com/ravisharmaa/booking-layer-test
 2. `docker-compose up -d`
 
 ## Running Tests
