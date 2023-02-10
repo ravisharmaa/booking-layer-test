@@ -1,66 +1,121 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Booking Layer Test
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+The task from Booking Layer
 
-## About Laravel
+## Assumptions
+These have been the assumptions while working on the test application.
+1. Room (can be blocked or booked)
+   - id
+   - capacity (integer)
+2. Booking (is a room reservation, that takes 1 capacity. So room with 4 capacity can be booked 4 times for same date)
+   - id
+   - room_id
+   - starts_at (date)
+   - ends_at (date)
+   
+3. Block (that’s not booking it’s just a indicator that room is not available then, same as booking  one block takes only 1 capacity)-
+   - id
+   - room_id
+   - starts_at (date)
+   - ends_at (date)
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Solution formulation
 
-## Learning Laravel
+Steps I thought of and executed for solving the given problem:
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+1. Prepare the migrations for the required tables
+2. Seed the data so that we can formulate a query. Even though the document states the feasibility the 
+of the test-taker to create/edit models. To my understanding adding a table or a field should not be added
+unless really necessary.
+3. Prepare necessary query
+   - First Pass
+     - Prepare query to filter bookings by given date/month/room_id
+       - To prepare the monthly query for the first time i retrieved all the days and counted the booking 
+       start date and end date summed up the (inclusive)difference which was a not an efficent approach. 
+       ```php
+        $booking = Booking::where(function ($query) use ($startDate) {
+            
+            $query->whereMonth('starts_at', '<=', $startDate->month);
+            
+            $query->whereMonth('ends_at', '>=', $startDate->month);
+       
+       })->get();
+       
+       $allBookingDays = 0;
+       
+       foreach ($booking as $allBookingDay) {
+           
+            $diff = Carbon::parse($allBookingDay->starts_at)->diffInDays(Carbon::parse($allBookingDay->ends_at)) + 1;
+            
+             $allBookingDays += $diff;
+       }
+       ```
+     
+       - Prepare query to filter blocking by given date/month/room_id
+       - Prepare query to calculate room capacity
+  - Second Pass
+    - Improve the query to count the booking days
+        - To improve the query I thought of delegating the task of calculation to database rather than the program itself,
+      which came as:
+      ```php 
+        $this->getQuery(Booking::class)
+            ->selectRaw(
+                'sum(DATEDIFF(ADDDATE(ends_at, INTERVAL 1 DAY), starts_at))
+                    as days_between'
+            )->whereRaw('month(starts_at) <= ? and month(ends_at) >= ?', [
+                $month, $month,
+            ])
+            ->when(! empty($roomId), function ($query) use ($roomId) {
+                return $query->whereIn('room_id', $roomId);
+            });
+      ```
+      The above query helped me to get the exclusive interval if I swapped it for `Booking`, `Block` which gave the 
+    accurate results as above. Also the `when` method came handy here as we know the `room_id` os optional in requests.
+    
+    - Third Pass:
+        - Encaupaltion of necessary logic into place so that the controller does not get bloated
+        - Refactoring and removing un-necessary code.
+      
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Libraries/Tools used
+* No any third party library other than the framework itself provides.
+* Uses php 8.1
+* Uses phpunit for testing and xDebug 3.0 for code coverage analysis.
 
-## Laravel Sponsors
+## Infrastructure
+- Docker is used to run the application, which encapsulates all the necessary services.
+## Installation
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+Run the following commands to set up the application, given that Docker is available in the host machine:
 
-### Premium Partners
+1. `git clone` repo
+2. `docker-compose up -d`
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+## Running Tests
+1. `vendor/bin/phpunit`:
+1. For code coverage:  `vendor/bin/phpunit --coverage-text`
+1. Additionally a report can also be generated using the command `vendor/bin/phpunit --coverage-html=reports`
 
-## Contributing
+## Usage of the project
+The tests provide a basic overview of the application. Some steps can be done to see the application in action, which are.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+1. To seed a basic data according to the document.
+    1. `php artisan db:seed`
+   2. Use the necessary routes to view the occupancy.
 
-## Code of Conduct
+## Decisions, tradeoffs and constraints
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+1. I have not used any form request validation or json resource to show the response.
+2. I have not also validated the get request, lets say if the room_ids is a valid array or not and the date/month are valid or not.
+3. I tried to use bindings but somehow it was not possible/working in some places.
+## Future Improvements.
 
-## Security Vulnerabilities
+It was a challenge. However, if I had to improve upon this:
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+1. I would work out to implement proper validation on places like Booking create, update, and get endpoints.
+2. I would work on implementing proper bindings as it is a get request and there might be malicious attacks. 
+3. I would also work on using `JsonResource` to send the response.
+4. More testing can also be done, to ensure applications integrity and behaviour.
