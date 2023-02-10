@@ -6,7 +6,6 @@ use App\Http\Services\Calculator;
 use App\Http\Services\OccupancyService;
 use App\Models\Block;
 use App\Models\Booking;
-use App\Models\Room;
 use Carbon\Carbon;
 
 class OccupancyController extends Controller

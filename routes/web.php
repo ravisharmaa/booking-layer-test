@@ -14,8 +14,8 @@ Route::resource('booking', BookingController::class)
         'update',
     ]);
 
-Route::get('daily-occupancy-rates/{day}', [OccupancyController::class, 'index'])
+Route::get('daily-occupancy-rates/{day}', [OccupancyController::class, 'daily'])
     ->name('daily.booking');
 
-Route::get('monthly-occupancy-rates/{month}', [OccupancyController::class, 'indexTwo'])
+Route::get('monthly-occupancy-rates/{month}', [OccupancyController::class, 'monthly'])
     ->name('monthly.booking');
