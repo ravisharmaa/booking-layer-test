@@ -132,7 +132,7 @@ class BookingControllerTest extends TestCase
 
         $booking->update([
             'starts_at' => now()->subDays(200),
-            'ends_at' => now()->subDays(199)
+            'ends_at' => now()->subDays(199),
         ]);
 
         $response = $this->get(route('monthly.booking', [

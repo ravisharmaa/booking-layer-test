@@ -24,6 +24,7 @@ class OccupancyController extends Controller
             $startDate = Carbon::createFromFormat('Y-m-d', request('day'))->startOfDay();
         } catch (InvalidFormatException $exception) {
             info($exception);
+
             return response(['invalid date format'], 422);
         }
 
@@ -43,6 +44,7 @@ class OccupancyController extends Controller
             $startDate = now()->startOfMonth()->setMonth((int) $monthYear[1]);
         } catch (InvalidFormatException $exception) {
             info($exception);
+
             return response(['invalid month format'], 422);
         }
 
