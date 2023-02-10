@@ -34,7 +34,7 @@ class BookingController extends Controller
         return response()->noContent(201);
     }
 
-    public function update(Booking $booking)
+    public function update(Booking $booking): Response
     {
         try {
             $this->service->update(new BookingDTO(
