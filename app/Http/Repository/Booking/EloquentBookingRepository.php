@@ -2,7 +2,6 @@
 
 namespace App\Http\Repository\Booking;
 
-use App\Http\Repository\Contract\BookingRepositoryInterface;
 use App\Models\DTO\BookingDTO;
 use App\Models\DTO\RoomDTO;
 use App\Models\Room;

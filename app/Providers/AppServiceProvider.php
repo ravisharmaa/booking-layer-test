@@ -2,8 +2,8 @@
 
 namespace App\Providers;
 
+use App\Http\Repository\Booking\BookingRepositoryInterface;
 use App\Http\Repository\Booking\EloquentBookingRepository;
-use App\Http\Repository\Contract\BookingRepositoryInterface;
 use App\Http\Repository\Room\EloquentRoomRepository;
 use App\Http\Repository\Room\RoomRepositoryAbstract;
 use Illuminate\Support\ServiceProvider;

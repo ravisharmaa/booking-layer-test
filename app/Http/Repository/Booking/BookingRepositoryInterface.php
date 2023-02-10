@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Repository\Contract;
+namespace App\Http\Repository\Booking;
 
 use App\Models\DTO\BookingDTO;
 use App\Models\DTO\RoomDTO;
