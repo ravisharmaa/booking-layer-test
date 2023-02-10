@@ -28,7 +28,7 @@ class BookingController extends Controller
         } catch (\Exception $exception) {
             info('Error while booking a room:', $exception);
 
-            return response(['message' => 'Could not add booking'], 422);
+            return response(['message' => 'Could not add booking'], 500);
         }
 
         return response()->noContent(201);
@@ -46,7 +46,9 @@ class BookingController extends Controller
         } catch (\Exception $exception) {
             info('Error while booking a room:', $exception);
 
-            return response(['message' => 'Could not update booking'], 422);
+            return response(['message' => 'Could not update booking'], 500);
         }
+
+        return response()->noContent(200);
     }
 }
