@@ -27,7 +27,7 @@ class OccupancyController extends Controller
         );
 
         return response([
-            'occupancy' => $occupancy
+            'occupancy' => $occupancy,
         ]);
     }
 
@@ -43,57 +43,7 @@ class OccupancyController extends Controller
         );
 
         return response([
-            'occupancy' => $calculation
+            'occupancy' => $calculation,
         ]);
-    }
-
-    public function occupancyRateForMonth()
-    {
-        $capacity = Room::sum('capacity');
-        $monthYear = explode('-', request('month'));
-        $startDate = now()->startOfMonth()->setMonth((int) $monthYear[1]);
-        $block = Block::query()->selectRaw(
-            'sum(DATEDIFF(ADDDATE(ends_at, INTERVAL 1 DAY), starts_at))
-                    as days_between'
-        )->whereRaw('month(starts_at) <= :starts_at and month(ends_at) >= :ends_at')
-        ->setBindings([
-            'starts_at' => $startDate->month,
-            'ends_at' => $startDate->month,
-        ]);
-
-        $book = Booking::query()->selectRaw(
-            'sum(DATEDIFF(ADDDATE(ends_at, INTERVAL 1 DAY), starts_at))
-                    as days_between'
-        )->whereRaw('month(starts_at) <= :starts_at and month(ends_at) >= :ends_at')
-            ->setBindings([
-                'starts_at' => $startDate->month,
-                'ends_at' => $startDate->month,
-            ]);
-
-        $booking = Booking::where(function ($query) use ($startDate) {
-            $query->whereMonth('starts_at', '<=', $startDate->month);
-            $query->whereMonth('ends_at', '>=', $startDate->month);
-        })->get();
-        $allBookingDays = 0;
-        foreach ($booking as $allBookingDay) {
-            $diff = Carbon::parse($allBookingDay->starts_at)->diffInDays(Carbon::parse($allBookingDay->ends_at)) + 1;
-            $allBookingDays += $diff;
-        }
-
-        $blocksCount = Block::where(function ($query) use ($startDate) {
-            $query->whereMonth('starts_at', '<=', $startDate->month);
-            $query->whereMonth('ends_at', '>=', $startDate->month);
-        })->get();
-
-        $allBlockedDays = 0;
-        foreach ($blocksCount as $blockCount) {
-            $blockedActualDays = Carbon::parse($blockCount->starts_at)->diffInDays(Carbon::parse($blockCount->ends_at)) + 1;
-            $allBlockedDays += $blockedActualDays;
-        }
-
-        $occupancy = $allBookingDays / ($capacity * $startDate->daysInMonth - $allBlockedDays);
-        $anotherOccupancy = $book->first()->days_between / ($capacity * $startDate->daysInMonth - $block->first()->days_between);
-        dump($anotherOccupancy);
-        dump($occupancy);
     }
 }

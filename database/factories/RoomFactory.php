@@ -23,7 +23,7 @@ class RoomFactory extends Factory
 
     public function roomWithCapacity($capacity): RoomFactory
     {
-        return $this->state(function($attributes) use ($capacity) {
+        return $this->state(function ($attributes) use ($capacity) {
             return ['capacity' => $capacity];
         });
     }

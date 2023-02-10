@@ -8,8 +8,7 @@ class Calculator
         int $bookings,
         int $blocks,
         int $capacity
-    ): float
-    {
+    ): float {
         return round($bookings / ($capacity - $blocks), 2);
     }
 }

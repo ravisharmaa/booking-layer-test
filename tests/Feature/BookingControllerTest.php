@@ -13,6 +13,7 @@ class BookingControllerTest extends TestCase
     use RefreshDatabase;
 
     private Room $roomB;
+
     private Room $roomC;
 
     protected function setUp(): void
@@ -42,7 +43,6 @@ class BookingControllerTest extends TestCase
             'starts_at' => now()->format('Y-m-d'),
             'ends_at' => now()->addDays(9)->format('Y-m-d'),
         ]);
-
     }
 
     public function test_it_should_create_a_booking()
@@ -77,7 +77,6 @@ class BookingControllerTest extends TestCase
 
     public function test_it_should_return_occupancy_for_a_day()
     {
-
         $bookingResponse = $this->get(route('daily.booking', [
             'day' => now()->addDays(1)->format('Y-m-d'),
         ]));

@@ -38,10 +38,8 @@ class EloquentBookingRepository implements BookingRepositoryInterface
 
     public function getOccupancyForDate(
         string $forModel,
-        string $startDate, ?array
-        $roomIds = null
-    ): Builder
-    {
+        string $startDate, ?array $roomIds = null
+    ): Builder {
         return $this->getQuery($forModel)->where(function ($query) use ($startDate) {
             $query->whereDate('starts_at', '<=', $startDate);
             $query->whereDate('ends_at', '>=', $startDate);
@@ -54,8 +52,7 @@ class EloquentBookingRepository implements BookingRepositoryInterface
         string $forModel,
         string $month,
         ?array $roomId = []
-    ): Builder
-    {
+    ): Builder {
         return $this->getQuery($forModel)
             ->selectRaw(
                 'sum(DATEDIFF(ADDDATE(ends_at, INTERVAL 1 DAY), starts_at))

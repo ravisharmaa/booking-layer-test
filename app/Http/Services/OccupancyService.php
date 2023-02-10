@@ -27,9 +27,8 @@ class OccupancyService
         string $forModel,
         string $startMonth,
         ?array $roomIds = []
-    ): ?int
-    {
-        return (int)$this->bookingRepository->getOccupancyForMonth(
+    ): ?int {
+        return (int) $this->bookingRepository->getOccupancyForMonth(
             $forModel, $startMonth, $roomIds
         )->first()?->days_between;
     }
