@@ -9,7 +9,7 @@ RUN apk add \
 
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/bin/
 
-RUN install-php-extensions bcmath intl opcache soap zip mcrypt igbinary opencensus pdo pdo_sqlite pdo_pgsql mbstring
+RUN install-php-extensions bcmath intl opcache soap zip mcrypt igbinary opencensus mysqli pdo pdo_sqlite pdo_mysql mbstring
 
 COPY ./deployment/docker/fpm/php.ini /usr/local/etc/php/conf.d/docker-php-config.ini
 

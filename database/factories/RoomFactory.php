@@ -17,8 +17,14 @@ class RoomFactory extends Factory
     public function definition()
     {
         return [
-            'name' => $this->faker->name,
-            'capacity' => $this->faker->randomDigit(),
+            'capacity' => $this->faker->randomNumber(1),
         ];
+    }
+
+    public function roomWithCapacity($capacity): RoomFactory
+    {
+        return $this->state(function($attributes) use ($capacity) {
+            return ['capacity' => $capacity];
+        });
     }
 }

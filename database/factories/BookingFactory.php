@@ -20,7 +20,7 @@ class BookingFactory extends Factory
         return [
             'room_id' => Room::factory(),
             'starts_at' => now()->format('Y-m-d'),
-            'ends_at' => now()->addDays(5)->format('Y-m-d'),
+            'ends_at' => now()->addDays(4)->format('Y-m-d'),
         ];
     }
 }
